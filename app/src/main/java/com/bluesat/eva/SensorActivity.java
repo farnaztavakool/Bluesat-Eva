@@ -12,9 +12,11 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.telephony.CarrierConfigManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -29,8 +31,13 @@ import androidx.core.content.ContextCompat;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 
 //Used for receiving notifications from the SensorManager when there is new sensor data.
@@ -51,6 +58,59 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
     @Override
     public void onLocationChanged(@NonNull Location location) {
 
+        writeToFile(location.toString(), this);
+
+    }
+
+    private void writeToFile(String data, Context context) {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
+            outputStreamWriter.write(data);
+            outputStreamWriter.close();
+        } catch (IOException e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+    }
+
+    public void onLocationChanged(View view) {
+
+
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+
+        /**
+         * define criteria
+         * creating a data object and writting the final object to the .txt file
+         */
+
+        LocationProvider provider =
+                lm.getProvider(LocationManager.GPS_PROVIDER);
+
+        lm.requestLocationUpdates(provider.getName(), 1000, 0, this);
+
+        Location location = lm.getLastKnownLocation(provider.getName());
+
+
+        Double loc = (location.getAltitude());
+        writeToFile(loc.toString(),this);
+        System.out.print("updating the location");
+
+
+
+    }
+    @Override
+    public void onProviderEnabled (String provider) {
+        Button b = (Button) findViewById(R.id.pause);
+        b.setText("hello");
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -73,6 +133,9 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         register();
 
         state = 0;
+        System.out.print("updating the location");
+
+
 
     }
 
@@ -102,9 +165,12 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
                     10, this);
 
         }
+        Button b = (Button) findViewById(R.id.pause);
+        b.setText("hello");
     }
 
     public void onPause(View view) {
+
         if (state == 0) {
             super.onPause();
             lm.removeUpdates(this);
