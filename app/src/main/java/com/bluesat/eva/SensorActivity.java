@@ -15,6 +15,7 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.PersistableBundle;
 import android.telephony.CarrierConfigManager;
 import android.util.Log;
@@ -56,20 +57,113 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
     Context mcontex;
 
     @Override
-    public void onLocationChanged(@NonNull Location location) {
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.sensor);
 
-        writeToFile(location.toString(), this);
+        mcontex = this;
+        lm = (LocationManager) mcontex.getSystemService(Context.LOCATION_SERVICE);
+
+        //checks if we have the permission and if not request permission
+
+        register();
+
+        state = 0;
+        System.out.print("updating the location");
+
+
+
+    }
+    public void register() {
+        if (ContextCompat.checkSelfPermission( this,android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED )
+        {
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String [] { Manifest.permission.ACCESS_FINE_LOCATION },
+                    99
+
+            );
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    100,
+                    0, this);
+
+        }
 
     }
 
-    private void writeToFile(String data, Context context) {
-        try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
-            outputStreamWriter.write(data);
-            outputStreamWriter.close();
-        } catch (IOException e) {
-            Log.e("Exception", "File write failed: " + e.toString());
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+
+        writeToFile(location.toString(), this);
+        Log.e("override",location.toString());
+
+
+    }
+    public void permission() {
+        // Storage Permissions
+        int REQUEST_EXTERNAL_STORAGE = 1;
+        String[] PERMISSIONS_STORAGE = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
+
+/**
+ * Checks if the app has permission to write to device storage
+ *
+ * If the app does not has permission then the user will be prompted to grant permissions
+ *
+ * @param activity
+ */
+
+            // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    this,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
         }
+    }
+
+
+
+    private void writeToFile(String data, Context context) {
+
+
+        try {
+            permission();
+            String path = context.getFilesDir().getAbsolutePath();
+            File root = new File(path);
+
+
+            if (!root.exists()) {
+                root.mkdir();
+            }
+            File output = new File(path+"/config.txt");
+            if (!output.exists()) output.createNewFile();
+            Log.e("in write to file",output.getAbsolutePath()+" "+output.exists());
+
+            if (!output.exists()) output.createNewFile();
+
+            output.setExecutable(true);
+
+
+
+            BufferedWriter bf = new BufferedWriter(new FileWriter(output,true));
+            bf.append (data);
+            bf.newLine();
+            bf.close();
+//            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
+//            outputStreamWriter.write(data);
+//            outputStreamWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+           // Log.e("Exception", "File write failed: " + e.printStackTrace(););
+        }
+
     }
 
     public void onLocationChanged(View view) {
@@ -100,9 +194,10 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         Location location = lm.getLastKnownLocation(provider.getName());
 
 
-        Double loc = (location.getAltitude());
-        writeToFile(loc.toString(),this);
+//        Double loc = (location.getAltitude());
+        writeToFile(location.toString(),this);
         System.out.print("updating the location");
+        Log.d("onlocationchanged",location.toString());
 
 
 
@@ -120,24 +215,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
     // onStart and onResume can be used too
     //Bundle stores the state of the activity which onCreate can use to create the new version of the activity
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.sensor);
 
-        mcontex = this;
-        lm = (LocationManager) mcontex.getSystemService(Context.LOCATION_SERVICE);
-
-        //checks if we have the permission and if not request permission
-
-        register();
-
-        state = 0;
-        System.out.print("updating the location");
-
-
-
-    }
 
     /**
      * ending data collection and returning to the main page
@@ -151,23 +229,6 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
     }
 
-    public void register() {
-        if (ContextCompat.checkSelfPermission( this,android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED )
-        {
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String [] { Manifest.permission.ACCESS_FINE_LOCATION },
-                    99
-
-            );
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                    2000,
-                    10, this);
-
-        }
-        Button b = (Button) findViewById(R.id.pause);
-        b.setText("hello");
-    }
 
     public void onPause(View view) {
 
