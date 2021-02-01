@@ -11,24 +11,21 @@ import androidx.appcompat.app.AppCompatActivity;
 
 
 //Used for receiving notifications from the SensorManager when there is new sensor data.
-public class MainActivity extends AppCompatActivity   {
+public class MainActivity extends AppCompatActivity {
 
 
     //Button pause;
 
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
+    public void onCreate( @Nullable Bundle savedInstanceState ) {
+        super.onCreate( savedInstanceState );
+        setContentView( R.layout.activity_main );
     }
 
-    public void start(View v) {
-        startActivity(new Intent(MainActivity.this, SensorActivity.class));
-
+    public void start( View v ) {
+        startActivity( new Intent( MainActivity.this, SensorActivity.class ) );
     }
-
 
 
     /**
@@ -36,7 +33,4 @@ public class MainActivity extends AppCompatActivity   {
      * TODO: read the data into a csv file
      * @param event
      */
-
-
-
 }
