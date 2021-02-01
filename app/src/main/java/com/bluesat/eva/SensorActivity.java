@@ -39,6 +39,9 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 
 //Used for receiving notifications from the SensorManager when there is new sensor data.
@@ -94,7 +97,8 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
     @Override
     public void onLocationChanged(@NonNull Location location) {
 
-        writeToFile(location.toString(), this);
+        writeToFile(location.toString(),(new Date(location.getTime())).toString(), this);
+        Log.d("data", String.valueOf(new Date(location.getTime())));
         Log.e("override",location.toString());
 
 
@@ -130,7 +134,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
 
 
-    private void writeToFile(String data, Context context) {
+    private void writeToFile(String data, String time, Context context) {
 
 
         try {
@@ -154,6 +158,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
             BufferedWriter bf = new BufferedWriter(new FileWriter(output,true));
             bf.append (data);
+            bf.append(" "+time);
             bf.newLine();
             bf.close();
 //            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
@@ -195,7 +200,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
 
 //        Double loc = (location.getAltitude());
-        writeToFile(location.toString(),this);
+        writeToFile(location.toString(),new Date(location.getTime()).toString(),this);
         System.out.print("updating the location");
         Log.d("onlocationchanged",location.toString());
 
@@ -204,8 +209,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
     }
     @Override
     public void onProviderEnabled (String provider) {
-        Button b = (Button) findViewById(R.id.pause);
-        b.setText("hello");
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
