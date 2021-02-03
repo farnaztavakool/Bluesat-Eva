@@ -318,20 +318,6 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         }
     };
 
-//
-//    public void export(View v) {
-//        //
-//    }
-//
-//
-//     public void customReading(Sensor event) {
-//          //reading the value of the sensor
-//         //defining mylocationlistener and then registering
-//         LocationListener ls = new LocationListener();
-////         LocationListener locationListener = new MyLocationListener();
-//         lm.requestLocationUpdates(lm.GPS_PROVIDER);
-////         lm.requestLocationUpdates(
-////                 ls.GPS_PROVIDER, 5000, 10, locationListener);
-////        }
+
 }
 
