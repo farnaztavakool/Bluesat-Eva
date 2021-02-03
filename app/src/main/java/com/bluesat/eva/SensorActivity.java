@@ -12,7 +12,9 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -27,6 +29,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
@@ -48,6 +52,9 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
     private int state;
     LocationManager lm;
 
+    private static final int STATE_RECORDING = 0;
+    private static final int STATE_PAUSED = 1;
+
     //context provides information regarding different parts of the application
     Context mcontex;
 
@@ -65,6 +72,10 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
         state = 0;
         System.out.print( "updating the location" );
+
+        // Register long press listener
+        this.findViewById( R.id.pauseResumeButton ).setOnTouchListener( this.stopRecordingOnTouchListener );
+        this.findViewById( R.id.recordButton ).setOnTouchListener( this.stopRecordingOnTouchListener );
     }
 
     public void register() {
@@ -141,7 +152,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
             output.setExecutable( true );
 
-            BufferedWriter bf = new BufferedWriter(  new FileWriter( output, true ) );
+            BufferedWriter bf = new BufferedWriter( new FileWriter( output, true ) );
             bf.append( data );
             bf.append( " " + time );
             bf.newLine();
@@ -156,8 +167,12 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         }
     }
 
-    public void onRecordButtonClick(View view) {
-        this.onLocationChanged( view );
+    public void onRecordButtonClick( View view ) {
+        if( this.state == SensorActivity.STATE_RECORDING ) {
+            this.onLocationChanged( view );
+        } else {
+            this.onPauseResumeButtonClick( view );
+        }
     }
 
     public void onLocationChanged( View view ) {
@@ -190,12 +205,13 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
                     location.getLongitude(),
                     location.getAltitude() )
             );
-        }
 
-//        Double loc = (location.getAltitude());
-        writeToFile( location.toString(), new Date( location.getTime() ).toString(), this );
-        System.out.print( "updating the location" );
-        Log.d( "onlocationchanged", location.toString() );
+
+//            Double loc = (location.getAltitude());
+            writeToFile( location.toString(), new Date( location.getTime() ).toString(), this );
+            System.out.print( "updating the location" );
+            Log.d( "onlocationchanged", location.toString() );
+        }
     }
 
     @Override
@@ -226,15 +242,15 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
             //super.onPause();
             lm.removeUpdates( this );
 
-            Button pauseResumeButton = (Button) this.findViewById( R.id.pauseResumeButton );
-            Button recordButton = (Button) this.findViewById( R.id.recordButton );
-            TextView titleText = (TextView) this.findViewById( R.id.titleTextView );
-            TextView logTextView = (TextView) this.findViewById( R.id.logTextView );
+            Button pauseResumeButton = this.findViewById( R.id.pauseResumeButton );
+            Button recordButton = this.findViewById( R.id.recordButton );
+            TextView titleText = this.findViewById( R.id.titleTextView );
+            TextView logTextView = this.findViewById( R.id.logTextView );
 
             pauseResumeButton.setText( "Resume" );
             recordButton.setText( "Resume" );
             titleText.setText( "PAUSED" );
-            logTextView.setText( "Press Bottom Button to Stop" );
+            logTextView.setText( "Long Press Button to Stop" );
 
             state = 1;
         } else {
@@ -247,10 +263,10 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 //     * registered listener for the accelometer listener
 //     */
     public void onResumeLocationRecording() {
-        Button pauseResumeButton = (Button) this.findViewById( R.id.pauseResumeButton );
-        Button recordButton = (Button) this.findViewById( R.id.recordButton );
-        TextView titleText = (TextView) this.findViewById( R.id.titleTextView );
-        TextView logTextView = (TextView) this.findViewById( R.id.logTextView );
+        Button pauseResumeButton = this.findViewById( R.id.pauseResumeButton );
+        Button recordButton = this.findViewById( R.id.recordButton );
+        TextView titleText = this.findViewById( R.id.titleTextView );
+        TextView logTextView = this.findViewById( R.id.logTextView );
 
         pauseResumeButton.setText( "Pause" );
         recordButton.setText( "Record" );
@@ -262,6 +278,45 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
         state = 0;
     }
+
+    /**
+     * Listener for long press of button to end the recording.
+     */
+    private final View.OnTouchListener stopRecordingOnTouchListener = new View.OnTouchListener() {
+        private int delay = 0;
+
+        @Override
+        public boolean onTouch( View v, MotionEvent ev ) {
+            if( ev.getAction() == MotionEvent.ACTION_DOWN ) {
+                this.delay = 9;
+            }
+
+            if( state == SensorActivity.STATE_PAUSED ) {
+                long downTime = (SystemClock.uptimeMillis() - ev.getDownTime());
+                int dotCount = (int) downTime / 1000;
+
+                if( downTime <= 200 ) {
+                    // Do nothing
+                    this.delay = 9;
+                } else if( downTime < 3000 ) {
+                    if( this.delay != dotCount ) {
+                        TextView logTextView = SensorActivity.this.findViewById( R.id.logTextView );
+
+                        char[] dots = new char[ dotCount ];
+                        Arrays.fill( dots, '.' );
+
+                        logTextView.setText( "Stopping" + new String( dots ) );
+                        this.delay = dotCount;
+                    }
+                } else {
+                    SensorActivity.this.finish();
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    };
 
 //
 //    public void export(View v) {
