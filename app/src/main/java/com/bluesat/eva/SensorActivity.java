@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
@@ -54,6 +55,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
     private static final int STATE_RECORDING = 0;
     private static final int STATE_PAUSED = 1;
+    private DBhelper db;
 
     //context provides information regarding different parts of the application
     Context mcontex;
@@ -72,6 +74,8 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
         state = 0;
         System.out.print( "updating the location" );
+
+        db = new DBhelper(this);
 
         // Register long press listener
         this.findViewById( R.id.pauseResumeButton ).setOnTouchListener( this.stopRecordingOnTouchListener );
@@ -96,63 +100,70 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
     @Override
     public void onLocationChanged( @NonNull Location location ) {
-        writeToFile( location.toString(), (new Date( location.getTime() )).toString(), this );
-        Log.d( "data", String.valueOf( new Date( location.getTime() ) ) );
-        Log.e( "override", location.toString() );
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date( location.getTime()));
+        int hr = cal.get(Calendar.HOUR);
+        int min = cal.get(Calendar.MINUTE);
+        int sec = cal.get(Calendar.SECOND);
+        String time = String.valueOf(hr)+":"+String.valueOf(min)+":"+String.valueOf(sec);
+//        String data = String.valueOf(location.getAltitude())+" "+String.valueOf(location.getLatitude())+" "+String.valueOf(location.getLongitude());
+        db.insertLocation(location.getAltitude(),location.getLongitude(),location.getLatitude(), time);
+        //writeToFile( data, time, this );
+        Log.d( "data", String.valueOf( location.getAltitude() ) ) ;
+        Log.e( "override",time );
     }
 
-    public void permission() {
-        // Storage Permissions
-        int REQUEST_EXTERNAL_STORAGE = 1;
-        String[] PERMISSIONS_STORAGE = {
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-        };
-
-        /**
-         * Checks if the app has permission to write to device storage
-         *
-         * If the app does not has permission then the user will be prompted to grant permissions
-         *
-         * @param activity
-         */
-
-        // Check if we have write permission
-        int permission = ActivityCompat.checkSelfPermission( this, Manifest.permission.WRITE_EXTERNAL_STORAGE );
-
-        if( permission != PackageManager.PERMISSION_GRANTED ) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                    this,
-                    PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
-            );
-        }
-    }
+//    public void permission() {
+//        // Storage Permissions
+//        int REQUEST_EXTERNAL_STORAGE = 1;
+//        String[] PERMISSIONS_STORAGE = {
+//                Manifest.permission.READ_EXTERNAL_STORAGE,
+//                Manifest.permission.WRITE_EXTERNAL_STORAGE
+//        };
+//
+//        /**
+//         * Checks if the app has permission to write to device storage
+//         *
+//         * If the app does not has permission then the user will be prompted to grant permissions
+//         *
+//         * @param activity
+//         */
+//
+//        // Check if we have write permission
+//        int permission = ActivityCompat.checkSelfPermission( this, Manifest.permission.WRITE_EXTERNAL_STORAGE );
+//
+//        if( permission != PackageManager.PERMISSION_GRANTED ) {
+//            // We don't have permission so prompt the user
+//            ActivityCompat.requestPermissions(
+//                    this,
+//                    PERMISSIONS_STORAGE,
+//                    REQUEST_EXTERNAL_STORAGE
+//            );
+//        }
+//    }
 
     private void writeToFile( String data, String time, Context context ) {
         try {
-            permission();
-            //String path = context.getFilesDir().getAbsolutePath();
-            String path = "/storage/emulated/0/Download";
+
+            String path = context.getFilesDir().getAbsolutePath();
 
 
             File root = new File( path );
 
-            if( !root.exists() ) {
-                root.mkdir();
-            }
 
+            boolean NEW_FILE = false;
             File output = new File( path + "/config.txt" );
-            if( !output.exists() ) output.createNewFile();
+            if( !output.exists() ) {
+                NEW_FILE = true;
+                output.createNewFile();
+            }
 
             Log.e( "in write to file", output.getAbsolutePath() + " " + output.exists() );
 
-            if( !output.exists() ) output.createNewFile();
 
-            output.setExecutable( true );
 
             BufferedWriter bf = new BufferedWriter( new FileWriter( output, true ) );
+            //if (NEW_FILE) bf.append()
             bf.append( data );
             bf.append( " " + time );
             bf.newLine();
@@ -175,44 +186,46 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         }
     }
 
+    /**
+     * TODO: find the code for requesting access to location
+     * @param view
+     */
     public void onLocationChanged( View view ) {
-        if( ActivityCompat.checkSelfPermission( this, Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission( this, Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
 
-        /**
-         * define criteria
-         * creating a data object and writing the final object to the .txt file
-         */
 
-        LocationProvider locationProvider = lm.getProvider( LocationManager.GPS_PROVIDER );
+                return;
 
-        lm.requestLocationUpdates( locationProvider.getName(), 1000, 0, this );
+            }
 
-        Location location = lm.getLastKnownLocation( locationProvider.getName() );
-        if( location != null ) {
-            TextView logTextView = this.findViewById( R.id.logTextView );
+            /**
+             * define criteria
+             * creating a data object and writing the final object to the .txt file
+             */
 
-            logTextView.setText( String.format( Locale.UK, "00:00:00\nLat %.02f\nLong %.02f\nAlt %.02f",
-                    location.getLatitude(),
-                    location.getLongitude(),
-                    location.getAltitude() )
-            );
+            LocationProvider locationProvider = lm.getProvider(LocationManager.GPS_PROVIDER);
+
+            lm.requestLocationUpdates(locationProvider.getName(), 1000, 0, this);
+
+            Location location = lm.getLastKnownLocation(locationProvider.getName());
+            if (location != null) {
+                TextView logTextView = this.findViewById(R.id.logTextView);
+
+                logTextView.setText(String.format(Locale.UK, "00:00:00\nLat %.02f\nLong %.02f\nAlt %.02f",
+                        location.getLatitude(),
+                        location.getLongitude(),
+                        location.getAltitude())
+                );
 
 
 //            Double loc = (location.getAltitude());
-            writeToFile( location.toString(), new Date( location.getTime() ).toString(), this );
-            System.out.print( "updating the location" );
-            Log.d( "onlocationchanged", location.toString() );
-        }
+                writeToFile(location.toString(), String.valueOf(new Date(location.getTime()).getTime()), this);
+                System.out.print("updating the location");
+                Log.d("onlocationchanged", location.toString());
+            }
     }
+
 
     @Override
     public void onProviderEnabled( String provider ) {
