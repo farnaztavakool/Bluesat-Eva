@@ -80,7 +80,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         state = 0;
         System.out.print( "updating the location" );
 
-        db = new DBhelper( this );
+        db = new DBhelper(this);
 
         // Register long press listener
         this.findViewById( R.id.pauseResumeButton ).setOnTouchListener( this.stopRecordingOnTouchListener );
@@ -106,19 +106,18 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
     @Override
     public void onLocationChanged( @NonNull Location location ) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime( new Date( location.getTime() ) );
-        int hr = cal.get( Calendar.HOUR );
-        int min = cal.get( Calendar.MINUTE );
-        int sec = cal.get( Calendar.SECOND );
-        String time = String.valueOf( hr ) + ":" + String.valueOf( min ) + ":" + String.valueOf( sec );
-//        String data = String.valueOf(location.getAltitude())+" "+String.valueOf(location.getLatitude())+" "+String.valueOf(location.getLongitude());
-        db.insertLocation( location.getAltitude(), location.getLongitude(), location.getLatitude(), time );
-        //writeToFile( data, time, this );
-        Log.d( "data", String.valueOf( location.getAltitude() ) );
-        Log.e( "override", time );
+        cal.setTime(new Date( location.getTime()));
+        int hr = cal.get(Calendar.HOUR);
+        int min = cal.get(Calendar.MINUTE);
+        int sec = cal.get(Calendar.SECOND);
+        String time = String.valueOf(hr)+":"+String.valueOf(min)+":"+String.valueOf(sec);
+        db.insertLocation(location.getAltitude(),location.getLongitude(),location.getLatitude(), time);
+
+        Log.d( "data", String.valueOf( location.getAltitude() ) ) ;
+        Log.e( "override",time );
     }
 
-    //    public void permission() {
+//    public void permission() {
 //        // Storage Permissions
 //        int REQUEST_EXTERNAL_STORAGE = 1;
 //        String[] PERMISSIONS_STORAGE = {
@@ -147,41 +146,41 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 //        }
 //    }
 
-    private void writeToFile( String data, String time, Context context ) {
-        try {
-
-
-            String path = context.getFilesDir().getAbsolutePath();
-
-
-            File root = new File( path );
-
-
-            boolean NEW_FILE = false;
-            File output = new File( path + "/config.txt" );
-            if( !output.exists() ) {
-                NEW_FILE = true;
-                output.createNewFile();
-            }
-
-            Log.e( "in write to file", output.getAbsolutePath() + " " + output.exists() );
-
-
-            BufferedWriter bf = new BufferedWriter( new FileWriter( output, true ) );
-            //if (NEW_FILE) bf.append()
-            bf.append( data );
-            bf.append( " " + time );
-            bf.newLine();
-            bf.close();
-
-            // OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
-            // outputStreamWriter.write(data);
-            // outputStreamWriter.close();
-        } catch( IOException e ) {
-            e.printStackTrace();
-            // Log.e("Exception", "File write failed: " + e.printStackTrace(););
-        }
-    }
+//    private void writeToFile( String data, String time, Context context ) {
+//        try {
+//
+//            String path = context.getFilesDir().getAbsolutePath();
+//
+//
+//            File root = new File( path );
+//
+//
+//            boolean NEW_FILE = false;
+//            File output = new File( path + "/config.txt" );
+//            if( !output.exists() ) {
+//                NEW_FILE = true;
+//                output.createNewFile();
+//            }
+//
+//            Log.e( "in write to file", output.getAbsolutePath() + " " + output.exists() );
+//
+//
+//
+//            BufferedWriter bf = new BufferedWriter( new FileWriter( output, true ) );
+//            //if (NEW_FILE) bf.append()
+//            bf.append( data );
+//            bf.append( " " + time );
+//            bf.newLine();
+//            bf.close();
+//
+//            // OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
+//            // outputStreamWriter.write(data);
+//            // outputStreamWriter.close();
+//        } catch( IOException e ) {
+//            e.printStackTrace();
+//            // Log.e("Exception", "File write failed: " + e.printStackTrace(););
+//        }
+//    }
 
     public void onRecordButtonClick( View view ) {
         if( this.state == SensorActivity.STATE_RECORDING ) {
@@ -193,39 +192,43 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
     /**
      * TODO: find the code for requesting access to location
-     *
      * @param view
      */
     public void onLocationChanged( View view ) {
-        if( ContextCompat.checkSelfPermission( this, Manifest.permission.ACCESS_FINE_LOCATION )
-                != PackageManager.PERMISSION_GRANTED ) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
 
 
-            return;
+                return;
 
-        }
+            }
 
-        /**
-         * define criteria
-         * creating a data object and writing the final object to the .txt file
-         */
+            /**
+             * define criteria
+             * creating a data object and writing the final object to the .txt file
+             */
 
-        LocationProvider locationProvider = lm.getProvider( LocationManager.GPS_PROVIDER );
+            LocationProvider locationProvider = lm.getProvider(LocationManager.GPS_PROVIDER);
 
-        lm.requestLocationUpdates( locationProvider.getName(), 1000, 0, this );
+            lm.requestLocationUpdates(locationProvider.getName(), 1000, 0, this);
 
-        Location location = lm.getLastKnownLocation( locationProvider.getName() );
-        if( location != null ) {
-            this.setLogMessage( String.format( Locale.UK, "00:00:00\nLat %.02f\nLong %.02f\nAlt %.02f",
-                    location.getLatitude(),
-                    location.getLongitude(),
-                    location.getAltitude() ) );
+            Location location = lm.getLastKnownLocation(locationProvider.getName());
+            if (location != null) {
+                TextView logTextView = this.findViewById(R.id.logTextView);
+
+                logTextView.setText(String.format(Locale.UK, "00:00:00\nLat %.02f\nLong %.02f\nAlt %.02f",
+                        location.getLatitude(),
+                        location.getLongitude(),
+                        location.getAltitude())
+                );
+
 
 //            Double loc = (location.getAltitude());
-            writeToFile( location.toString(), String.valueOf( new Date( location.getTime() ).getTime() ), this );
-            System.out.print( "updating the location" );
-            Log.d( "onlocationchanged", location.toString() );
-        }
+//                writeToFile(location.toString(), String.valueOf(new Date(location.getTime()).getTime()), this);
+
+                System.out.print("updating the location");
+                Log.d("onlocationchanged", location.toString());
+            }
     }
 
 
@@ -260,11 +263,12 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
             Button pauseResumeButton = this.findViewById( R.id.pauseResumeButton );
             Button recordButton = this.findViewById( R.id.recordButton );
             TextView titleText = this.findViewById( R.id.titleTextView );
+            TextView logTextView = this.findViewById( R.id.logTextView );
 
             pauseResumeButton.setText( "Resume" );
             recordButton.setText( "Resume" );
             titleText.setText( "PAUSED" );
-            this.setLogMessage( "Long Press Button to Stop" );
+            logTextView.setText( "Long Press Button to Stop" );
 
             state = 1;
         } else {
@@ -280,11 +284,12 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         Button pauseResumeButton = this.findViewById( R.id.pauseResumeButton );
         Button recordButton = this.findViewById( R.id.recordButton );
         TextView titleText = this.findViewById( R.id.titleTextView );
+        TextView logTextView = this.findViewById( R.id.logTextView );
 
         pauseResumeButton.setText( "Pause" );
         recordButton.setText( "Record" );
         titleText.setText( "Recording" );
-        this.setLogMessage( "" );
+        logTextView.setText( "" );
 
         //super.onResume();
         register();
@@ -293,190 +298,44 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
     }
 
     /**
-     *
-     */
-    private void setGpsSignalStrength( GpsSignalStrength strength ) {
-        switch( strength ) {
-            case GpsSignalStrength.Bad:
-                // Todo:: show red icon
-                break;
-            case GpsSignalStrength.Fair:
-                // Todo:: show yellow icon
-                break;
-            case GpsSignalStrength.Good:
-                // Todo:: show green icon
-                break;
-        }
-    }
-
-    /**
-     * Set the status message to display in the logTextView.
-     *
-     * @param message Status message.
-     */
-    private void setLogStatusMessage( CharSequence message ) {
-        this.logStatusMessage = message;
-
-        this.displayLogMessage();
-    }
-
-    /**
-     * Set the log message.
-     *
-     * @param message Message
-     */
-    private void setLogMessage( CharSequence message ) {
-        this.logMessage = message;
-
-        this.displayLogMessage();
-    }
-
-    /**
-     * Display string in the logTextView.
-     */
-    private void displayLogMessage() {
-        this.runOnUiThread( () -> {
-            TextView logTextView = this.findViewById( R.id.logTextView );
-
-            if( this.logStatusMessage != null ) {
-                logTextView.setText( this.logStatusMessage );
-            } else {
-                logTextView.setText( this.logMessage );
-            }
-        } );
-    }
-
-
-    /**
      * Listener for long press of button to end the recording.
      */
     private final View.OnTouchListener stopRecordingOnTouchListener = new View.OnTouchListener() {
-        private Timer timer = null;
-        private long startTime = 0;
-        private boolean isUp = false;
+        private int delay = 0;
 
         @Override
         public boolean onTouch( View v, MotionEvent ev ) {
-            switch( ev.getAction() ) {
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    this.isUp = true;
-                    if( this.timer != null ) {
-                        this.timer.cancel();
+            if( ev.getAction() == MotionEvent.ACTION_DOWN ) {
+                this.delay = 9;
+            }
+
+            if( state == SensorActivity.STATE_PAUSED ) {
+                long downTime = (SystemClock.uptimeMillis() - ev.getDownTime());
+                int dotCount = (int) downTime / 1000;
+
+                if( downTime <= 200 ) {
+                    // Do nothing
+                    this.delay = 9;
+                } else if( downTime < 3000 ) {
+                    if( this.delay != dotCount ) {
+                        TextView logTextView = SensorActivity.this.findViewById( R.id.logTextView );
+
+                        char[] dots = new char[ dotCount ];
+                        Arrays.fill( dots, '.' );
+
+                        logTextView.setText( "Stopping" + new String( dots ) );
+                        this.delay = dotCount;
                     }
-
-                    SensorActivity.this.setLogStatusMessage( null );
-
-                    long downTime = System.currentTimeMillis() - startTime;
-                    if( SensorActivity.this.state == SensorActivity.STATE_RECORDING && v.getId() == R.id.recordButton ) {
-                        v.performClick();
-                        return true;
-                    } else if( downTime <= 300 ) {
-                        if( SensorActivity.this.state == SensorActivity.STATE_PAUSED ) {
-                            v.performClick();
-                            return true;
-                        } else {
-                            if( v.getId() == R.id.pauseResumeButton ) {
-                                return true;
-                            } else {
-                                v.performClick();
-                                return true;
-                            }
-                        }
-                    } else if( downTime > 3000 ) {
-
-                        if( SensorActivity.this.state == SensorActivity.STATE_PAUSED ) {
-                            SensorActivity.this.finish();
-                            return true;
-                        } else {
-                            if( v.getId() == R.id.pauseResumeButton ) {
-                                v.performClick();
-                                return true;
-                            } else {
-                                v.performClick();
-                                return true;
-                            }
-                        }
-                    }
-
+                } else {
+                    SensorActivity.this.finish();
                     return true;
-                case MotionEvent.ACTION_DOWN:
-                    TimerTask timerTask = null;
-
-                    if( SensorActivity.this.state == SensorActivity.STATE_PAUSED ) {
-                        timerTask = new TimerTask() {
-                            public void run() {
-                                if( isUp ) {
-                                    if( timer != null ) {
-                                        timer.cancel();
-                                    }
-                                    return;
-                                }
-
-                                long downTime = System.currentTimeMillis() - startTime;
-                                int dotCount = (int) (downTime / 1000);
-
-                                if( 200 < downTime && downTime <= 3000 ) {
-                                    char[] dots = new char[ dotCount ];
-                                    Arrays.fill( dots, '.' );
-
-                                    SensorActivity.this.setLogStatusMessage( "Stopping" + new String( dots ) );
-                                } else if( downTime > 3000 ) {
-                                    SensorActivity.this.setLogStatusMessage( "Stopped" );
-                                    if( timer != null ) {
-                                        timer.cancel();
-                                    }
-                                }
-                            }
-                        };
-                    } else {
-                        if( v.getId() == R.id.pauseResumeButton ) {
-                            timerTask = new TimerTask() {
-                                public void run() {
-                                    if( isUp ) {
-                                        if( timer != null ) {
-                                            timer.cancel();
-                                        }
-                                        return;
-                                    }
-
-                                    long downTime = System.currentTimeMillis() - startTime;
-                                    int dotCount = (int) (downTime / 1000);
-
-                                    if( 200 < downTime && downTime <= 3000 ) {
-                                        char[] dots = new char[ dotCount ];
-                                        Arrays.fill( dots, '.' );
-
-                                        SensorActivity.this.setLogStatusMessage( "Pausing" + new String( dots ) );
-                                    } else if( downTime > 3000 ) {
-                                        SensorActivity.this.setLogStatusMessage( "Paused" );
-                                        if( timer != null ) {
-                                            timer.cancel();
-                                        }
-                                    }
-                                }
-                            };
-                        }
-                    }
-
-                    if( this.timer != null ) {
-                        this.timer.cancel();
-                    }
-
-                    if( timerTask == null ) {
-                        return false;
-                    }
-
-                    this.isUp = false;
-                    this.startTime = System.currentTimeMillis();
-
-                    this.timer = new Timer( "LongPressTimer" );
-                    this.timer.schedule( timerTask, 200L, 100L );
-                    break;
+                }
             }
 
             return false;
         }
     };
+
+
 }
 
