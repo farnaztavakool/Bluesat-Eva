@@ -106,9 +106,8 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         int min = cal.get(Calendar.MINUTE);
         int sec = cal.get(Calendar.SECOND);
         String time = String.valueOf(hr)+":"+String.valueOf(min)+":"+String.valueOf(sec);
-//        String data = String.valueOf(location.getAltitude())+" "+String.valueOf(location.getLatitude())+" "+String.valueOf(location.getLongitude());
         db.insertLocation(location.getAltitude(),location.getLongitude(),location.getLatitude(), time);
-        //writeToFile( data, time, this );
+
         Log.d( "data", String.valueOf( location.getAltitude() ) ) ;
         Log.e( "override",time );
     }
@@ -142,41 +141,41 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 //        }
 //    }
 
-    private void writeToFile( String data, String time, Context context ) {
-        try {
-
-            String path = context.getFilesDir().getAbsolutePath();
-
-
-            File root = new File( path );
-
-
-            boolean NEW_FILE = false;
-            File output = new File( path + "/config.txt" );
-            if( !output.exists() ) {
-                NEW_FILE = true;
-                output.createNewFile();
-            }
-
-            Log.e( "in write to file", output.getAbsolutePath() + " " + output.exists() );
-
-
-
-            BufferedWriter bf = new BufferedWriter( new FileWriter( output, true ) );
-            //if (NEW_FILE) bf.append()
-            bf.append( data );
-            bf.append( " " + time );
-            bf.newLine();
-            bf.close();
-
-            // OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
-            // outputStreamWriter.write(data);
-            // outputStreamWriter.close();
-        } catch( IOException e ) {
-            e.printStackTrace();
-            // Log.e("Exception", "File write failed: " + e.printStackTrace(););
-        }
-    }
+//    private void writeToFile( String data, String time, Context context ) {
+//        try {
+//
+//            String path = context.getFilesDir().getAbsolutePath();
+//
+//
+//            File root = new File( path );
+//
+//
+//            boolean NEW_FILE = false;
+//            File output = new File( path + "/config.txt" );
+//            if( !output.exists() ) {
+//                NEW_FILE = true;
+//                output.createNewFile();
+//            }
+//
+//            Log.e( "in write to file", output.getAbsolutePath() + " " + output.exists() );
+//
+//
+//
+//            BufferedWriter bf = new BufferedWriter( new FileWriter( output, true ) );
+//            //if (NEW_FILE) bf.append()
+//            bf.append( data );
+//            bf.append( " " + time );
+//            bf.newLine();
+//            bf.close();
+//
+//            // OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
+//            // outputStreamWriter.write(data);
+//            // outputStreamWriter.close();
+//        } catch( IOException e ) {
+//            e.printStackTrace();
+//            // Log.e("Exception", "File write failed: " + e.printStackTrace(););
+//        }
+//    }
 
     public void onRecordButtonClick( View view ) {
         if( this.state == SensorActivity.STATE_RECORDING ) {
@@ -220,7 +219,8 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
 
 //            Double loc = (location.getAltitude());
-                writeToFile(location.toString(), String.valueOf(new Date(location.getTime()).getTime()), this);
+//                writeToFile(location.toString(), String.valueOf(new Date(location.getTime()).getTime()), this);
+
                 System.out.print("updating the location");
                 Log.d("onlocationchanged", location.toString());
             }
