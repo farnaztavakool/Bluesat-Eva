@@ -278,18 +278,31 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         state = 0;
     }
 
+    /**
+     * Set the status message to display in the logTextView.
+     *
+     * @param message Status message.
+     */
     private void setLogStatusMessage( CharSequence message ) {
         this.logStatusMessage = message;
 
         this.displayLogMessage();
     }
 
+    /**
+     * Set the log message.
+     *
+     * @param message Message
+     */
     private void setLogMessage( CharSequence message ) {
         this.logMessage = message;
 
         this.displayLogMessage();
     }
 
+    /**
+     * Display string in the logTextView.
+     */
     private void displayLogMessage() {
         this.runOnUiThread( () -> {
             TextView logTextView = this.findViewById( R.id.logTextView );
