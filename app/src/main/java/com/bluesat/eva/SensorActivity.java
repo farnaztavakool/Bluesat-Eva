@@ -293,6 +293,23 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
     }
 
     /**
+     *
+     */
+    private void setGpsSignalStrength( GpsSignalStrength strength ) {
+        switch( strength ) {
+            case GpsSignalStrength.Bad:
+                // Todo:: show red icon
+                break;
+            case GpsSignalStrength.Fair:
+                // Todo:: show yellow icon
+                break;
+            case GpsSignalStrength.Good:
+                // Todo:: show green icon
+                break;
+        }
+    }
+
+    /**
      * Set the status message to display in the logTextView.
      *
      * @param message Status message.
