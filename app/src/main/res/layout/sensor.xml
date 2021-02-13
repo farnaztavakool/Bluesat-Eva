@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#040303"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:keepScreenOn="true">
 
     <Button
 
@@ -56,11 +57,11 @@
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp"
-        android:background="#FFFFFF"
         android:contentDescription="GPS Signal strength"
+        android:onClick="onGpsSignalClick"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/wireless_signal_icon" />
+        app:srcCompat="@drawable/signal_green" />
 
     <TextView
         android:id="@+id/logTextView"

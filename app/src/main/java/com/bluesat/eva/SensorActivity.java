@@ -13,10 +13,14 @@ import android.location.LocationProvider;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -80,7 +84,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         state = 0;
         System.out.print( "updating the location" );
 
-        db = new DBhelper(this);
+        db = new DBhelper( this );
 
         // Register long press listener
         this.findViewById( R.id.pauseResumeButton ).setOnTouchListener( this.stopRecordingOnTouchListener );
@@ -106,15 +110,15 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
     @Override
     public void onLocationChanged( @NonNull Location location ) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date( location.getTime()));
-        int hr = cal.get(Calendar.HOUR);
-        int min = cal.get(Calendar.MINUTE);
-        int sec = cal.get(Calendar.SECOND);
-        String time = String.valueOf(hr)+":"+String.valueOf(min)+":"+String.valueOf(sec);
-        db.insertLocation(location.getAltitude(),location.getLongitude(),location.getLatitude(), time);
+        cal.setTime( new Date( location.getTime() ) );
+        int hr = cal.get( Calendar.HOUR );
+        int min = cal.get( Calendar.MINUTE );
+        int sec = cal.get( Calendar.SECOND );
+        String time = String.valueOf( hr ) + ":" + String.valueOf( min ) + ":" + String.valueOf( sec );
+        db.insertLocation( location.getAltitude(), location.getLongitude(), location.getLatitude(), time );
 
-        Log.d( "data", String.valueOf( location.getAltitude() ) ) ;
-        Log.e( "override",time );
+        Log.d( "data", String.valueOf( location.getAltitude() ) );
+        Log.e( "override", time );
     }
 
 //    public void permission() {
@@ -192,41 +196,42 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
     /**
      * TODO: find the code for requesting access to location
+     *
      * @param view
      */
     public void onLocationChanged( View view ) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+        if( ContextCompat.checkSelfPermission( this, Manifest.permission.ACCESS_FINE_LOCATION )
+                != PackageManager.PERMISSION_GRANTED ) {
 
 
-                return;
+            return;
 
-            }
+        }
 
-            /**
-             * define criteria
-             * creating a data object and writing the final object to the .txt file
-             */
+        /**
+         * define criteria
+         * creating a data object and writing the final object to the .txt file
+         */
 
-            LocationProvider locationProvider = lm.getProvider(LocationManager.GPS_PROVIDER);
+        LocationProvider locationProvider = lm.getProvider( LocationManager.GPS_PROVIDER );
 
-            lm.requestLocationUpdates(locationProvider.getName(), 1000, 0, this);
+        lm.requestLocationUpdates( locationProvider.getName(), 1000, 0, this );
 
-            Location location = lm.getLastKnownLocation(locationProvider.getName());
-            if (location != null) {
-                this.setLogStatusMessage(String.format(Locale.UK, "00:00:00\nLat %.02f\nLong %.02f\nAlt %.02f",
-                        location.getLatitude(),
-                        location.getLongitude(),
-                        location.getAltitude())
-                );
+        Location location = lm.getLastKnownLocation( locationProvider.getName() );
+        if( location != null ) {
+            this.setLogStatusMessage( String.format( Locale.UK, "00:00:00\nLat %.02f\nLong %.02f\nAlt %.02f",
+                    location.getLatitude(),
+                    location.getLongitude(),
+                    location.getAltitude() )
+            );
 
 
 //            Double loc = (location.getAltitude());
 //                writeToFile(location.toString(), String.valueOf(new Date(location.getTime()).getTime()), this);
 
-                System.out.print("updating the location");
-                Log.d("onlocationchanged", location.toString());
-            }
+            System.out.print( "updating the location" );
+            Log.d( "onlocationchanged", location.toString() );
+        }
     }
 
 
@@ -293,19 +298,41 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         state = 0;
     }
 
+
+    private int gps_signal_state = 0;
+
+    public void onGpsSignalClick( View v ) {
+        switch( this.gps_signal_state ) {
+            case 0:
+                this.setGpsSignalStrength( GpsSignalStrength.Good );
+                this.gps_signal_state = 1;
+                break;
+            case 1:
+                this.setGpsSignalStrength( GpsSignalStrength.Fair );
+                this.gps_signal_state = 2;
+                break;
+            case 2:
+                this.setGpsSignalStrength( GpsSignalStrength.Bad );
+                this.gps_signal_state = 0;
+                break;
+        }
+    }
+
     /**
      *
      */
     private void setGpsSignalStrength( GpsSignalStrength strength ) {
+        ImageView gpsSignal = this.findViewById( R.id.gpsSignalImageView );
+
         switch( strength ) {
             case Bad:
-                // Todo:: show red icon
+                gpsSignal.setImageResource( R.drawable.signal_red );
                 break;
             case Fair:
-                // Todo:: show yellow icon
+                gpsSignal.setImageResource( R.drawable.signal_orange );
                 break;
             case Good:
-                // Todo:: show green icon
+                gpsSignal.setImageResource( R.drawable.signal_green );
                 break;
         }
     }
@@ -347,6 +374,17 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         } );
     }
 
+    private final void vibrateOnAction() {
+        Vibrator v = (Vibrator) getSystemService( Context.VIBRATOR_SERVICE );
+        // Vibrate for 500 milliseconds
+        if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ) {
+            v.vibrate( VibrationEffect.createOneShot( 500, VibrationEffect.DEFAULT_AMPLITUDE ) );
+        } else {
+            //deprecated in API 26
+            v.vibrate( 500 );
+        }
+    }
+
 
     /**
      * Listener for long press of button to end the recording.
@@ -370,30 +408,48 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
                     long downTime = System.currentTimeMillis() - startTime;
                     if( SensorActivity.this.state == SensorActivity.STATE_RECORDING && v.getId() == R.id.recordButton ) {
+                        // Manually record the location.
+                        SensorActivity.this.vibrateOnAction();
+
                         v.performClick();
                         return true;
                     } else if( downTime <= 300 ) {
                         if( SensorActivity.this.state == SensorActivity.STATE_PAUSED ) {
+                            // Resume the auto record
+
+                            SensorActivity.this.vibrateOnAction();
+
                             v.performClick();
                             return true;
                         } else {
                             if( v.getId() == R.id.pauseResumeButton ) {
                                 return true;
                             } else {
+                                // Resume the auto record
+                                SensorActivity.this.vibrateOnAction();
+
                                 v.performClick();
                                 return true;
                             }
                         }
                     } else if( downTime > 3000 ) {
-
                         if( SensorActivity.this.state == SensorActivity.STATE_PAUSED ) {
+                            // Close the activity
+
                             SensorActivity.this.finish();
+
                             return true;
                         } else {
                             if( v.getId() == R.id.pauseResumeButton ) {
+                                // Pause the auto recording
+
                                 v.performClick();
                                 return true;
                             } else {
+                                // Manually record the location
+
+                                SensorActivity.this.vibrateOnAction();
+
                                 v.performClick();
                                 return true;
                             }
@@ -424,6 +480,9 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
                                     SensorActivity.this.setLogStatusMessage( "Stopping" + new String( dots ) );
                                 } else if( downTime > 3000 ) {
                                     SensorActivity.this.setLogStatusMessage( "Stopped" );
+
+                                    SensorActivity.this.vibrateOnAction();
+
                                     if( timer != null ) {
                                         timer.cancel();
                                     }
@@ -451,6 +510,9 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
                                         SensorActivity.this.setLogStatusMessage( "Pausing" + new String( dots ) );
                                     } else if( downTime > 3000 ) {
                                         SensorActivity.this.setLogStatusMessage( "Paused" );
+
+                                        SensorActivity.this.vibrateOnAction();
+
                                         if( timer != null ) {
                                             timer.cancel();
                                         }
