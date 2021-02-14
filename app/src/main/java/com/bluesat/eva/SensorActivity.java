@@ -99,12 +99,12 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
                     new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
                     99
             );
-
-            lm.requestLocationUpdates( LocationManager.GPS_PROVIDER,
-                    100,
-                    0, this
-            );
         }
+
+        lm.requestLocationUpdates( LocationManager.GPS_PROVIDER,
+                100,
+                0, this
+        );
     }
 
     @Override
@@ -116,6 +116,8 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         int sec = cal.get( Calendar.SECOND );
         String time = String.valueOf( hr ) + ":" + String.valueOf( min ) + ":" + String.valueOf( sec );
         db.insertLocation( location.getAltitude(), location.getLongitude(), location.getLatitude(), time );
+
+        this.displayLocationInformation( location );
 
         Log.d( "data", String.valueOf( location.getAltitude() ) );
         Log.e( "override", time );
@@ -219,12 +221,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
         Location location = lm.getLastKnownLocation( locationProvider.getName() );
         if( location != null ) {
-            this.setLogStatusMessage( String.format( Locale.UK, "00:00:00\nLat %.02f\nLong %.02f\nAlt %.02f",
-                    location.getLatitude(),
-                    location.getLongitude(),
-                    location.getAltitude() )
-            );
-
+            this.displayLocationInformation( location );
 
 //            Double loc = (location.getAltitude());
 //                writeToFile(location.toString(), String.valueOf(new Date(location.getTime()).getTime()), this);
@@ -296,6 +293,15 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         register();
 
         state = 0;
+    }
+
+
+    private void displayLocationInformation( @NonNull Location location ) {
+        this.setLogMessage( String.format( Locale.UK, "00:00:00\nLat %.02f\nLong %.02f\nAlt %.02f",
+                location.getLatitude(),
+                location.getLongitude(),
+                location.getAltitude() )
+        );
     }
 
 
