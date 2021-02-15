@@ -267,7 +267,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
             pauseResumeButton.setText( "Resume" );
             recordButton.setText( "Resume" );
             titleText.setText( "PAUSED" );
-            this.setLogMessage( "Long Press Button to Stop" );
+            this.setLogMessage( "Tap for resume.\nHold for finish." );
 
             state = 1;
         } else {
