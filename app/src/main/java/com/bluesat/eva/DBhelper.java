@@ -4,6 +4,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
+
+import java.io.File;
 
 public class DBhelper extends SQLiteOpenHelper {
 
@@ -15,7 +18,7 @@ public class DBhelper extends SQLiteOpenHelper {
     public static final String COLOMN_TIME = "time";
 
     public DBhelper(Context c) {
-        super(c,DATABASE_NAME,null,1);
+        super(c, new File( Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), DATABASE_NAME).getAbsolutePath() ,null,1);
     }
 
     @Override
@@ -27,7 +30,6 @@ public class DBhelper extends SQLiteOpenHelper {
                 COLOMN_TIME +" STRING" +
                 ")";
         db.execSQL(create);
-
     }
 
     @Override
