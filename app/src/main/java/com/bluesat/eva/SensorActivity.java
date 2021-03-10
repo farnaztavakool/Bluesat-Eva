@@ -117,7 +117,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         String time = String.valueOf( hr ) + ":" + String.valueOf( min ) + ":" + String.valueOf( sec );
         db.insertLocation( location.getAltitude(), location.getLongitude(), location.getLatitude(), time );
 
-        this.displayLocationInformation( location );
+        this.displayLocationInformation(time, location );
 
         Log.d( "data", String.valueOf( location.getAltitude() ) );
         Log.e( "override", time );
@@ -221,7 +221,16 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
         Location location = lm.getLastKnownLocation( locationProvider.getName() );
         if( location != null ) {
-            this.displayLocationInformation( location );
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTime( new Date( location.getTime() ) );
+            int hr = cal.get( Calendar.HOUR );
+            int min = cal.get( Calendar.MINUTE );
+            int sec = cal.get( Calendar.SECOND );
+            String time = String.valueOf( hr ) + ":" + String.valueOf( min ) + ":" + String.valueOf( sec );
+            db.insertLocation( location.getAltitude(), location.getLongitude(), location.getLatitude(), time );
+
+            this.displayLocationInformation( time, location );
 
 //            Double loc = (location.getAltitude());
 //                writeToFile(location.toString(), String.valueOf(new Date(location.getTime()).getTime()), this);
@@ -296,8 +305,9 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
     }
 
 
-    private void displayLocationInformation( @NonNull Location location ) {
-        this.setLogMessage( String.format( Locale.UK, "00:00:00\nLat %.02f\nLong %.02f\nAlt %.02f",
+    private void displayLocationInformation( String time, @NonNull Location location ) {
+        this.setLogMessage( String.format( Locale.UK, "%s\nLat %.02f\nLong %.02f\nAlt %.02f",
+                time,
                 location.getLatitude(),
                 location.getLongitude(),
                 location.getAltitude() )
