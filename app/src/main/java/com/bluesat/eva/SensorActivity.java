@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.location.Location;
@@ -69,6 +70,8 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
     //context provides information regarding different parts of the application
     Context mcontex;
 
+    private Timer recordingBlinkTimer = null;
+
     @Override
     public void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
@@ -89,6 +92,8 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         // Register long press listener
         this.findViewById( R.id.pauseResumeButton ).setOnTouchListener( this.stopRecordingOnTouchListener );
         this.findViewById( R.id.recordButton ).setOnTouchListener( this.stopRecordingOnTouchListener );
+
+        this.startRecordingBlink();
     }
 
     public void register() {
@@ -230,7 +235,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
             String time = String.valueOf( hr ) + ":" + String.valueOf( min ) + ":" + String.valueOf( sec );
             db.insertLocation( location.getAltitude(), location.getLongitude(), location.getLatitude(), time );
 
-            this.displayLocationInformation( time, location );
+            this.displayLocationInformation( time + " (snap)", location );
 
 //            Double loc = (location.getAltitude());
 //                writeToFile(location.toString(), String.valueOf(new Date(location.getTime()).getTime()), this);
@@ -274,9 +279,13 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
             TextView titleText = this.findViewById( R.id.titleTextView );
 
             pauseResumeButton.setText( "Resume" );
+            pauseResumeButton.setBackgroundColor( Color.GREEN );
             recordButton.setText( "Resume" );
+            recordButton.setBackgroundColor( Color.GREEN );
             titleText.setText( "PAUSED" );
             this.setLogMessage( "Tap for resume.\nHold for finish." );
+
+            this.stopRecordingBlink();
 
             state = 1;
         } else {
@@ -294,9 +303,13 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         TextView titleText = this.findViewById( R.id.titleTextView );
 
         pauseResumeButton.setText( "Pause" );
-        recordButton.setText( "Record" );
-        titleText.setText( "Recording" );
+        pauseResumeButton.setBackgroundColor( 0xFFFFE900 );
+        recordButton.setText( "Take snapshot" );
+        recordButton.setBackgroundColor( 0xFFFFFFFF );
+        titleText.setText( "Recording 🔴" );
         this.setLogMessage( "" );
+
+        this.startRecordingBlink();
 
         //super.onResume();
         register();
@@ -304,6 +317,49 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         state = 0;
     }
 
+    public void startRecordingBlink(){
+        long startTime = System.currentTimeMillis();
+
+        TimerTask timerTask = new TimerTask() {
+            public void run() {
+                String title;
+                if( SensorActivity.this.state == SensorActivity.STATE_RECORDING ) {
+                    long elapsedTime = System.currentTimeMillis() - startTime;
+                    int dotCount = (int) (elapsedTime / 2000);
+
+                    if( dotCount % 2 == 0 ) {
+                        title = "Recording 🔴";
+                    } else {
+                        title= "Recording ⚫️";
+                    }
+                } else {
+                    title = "PAUSED";
+                }
+
+                SensorActivity.this.runOnUiThread( ()->{
+                    TextView titleText = SensorActivity.this.findViewById( R.id.titleTextView );
+                    titleText.setText( title );
+                } );
+
+                if( SensorActivity.this.state == SensorActivity.STATE_PAUSED ) {
+                    SensorActivity.this.recordingBlinkTimer.cancel();
+                }
+            }
+        };
+
+        if( this.recordingBlinkTimer != null ) {
+            this.recordingBlinkTimer.cancel();
+        }
+
+        this.recordingBlinkTimer = new Timer( "RecordingBlink" );
+        this.recordingBlinkTimer.schedule( timerTask, 500L, 100L );
+    }
+
+    private void stopRecordingBlink(){
+        if( this.recordingBlinkTimer != null ) {
+            this.recordingBlinkTimer.cancel();
+        }
+    }
 
     private void displayLocationInformation( String time, @NonNull Location location ) {
         this.setLogMessage( String.format( Locale.UK, "%s\nLat %.02f\nLong %.02f\nAlt %.02f",
