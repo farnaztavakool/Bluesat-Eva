@@ -278,16 +278,17 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
             Button recordButton = this.findViewById( R.id.recordButton );
             TextView titleText = this.findViewById( R.id.titleTextView );
 
-            pauseResumeButton.setText( "Resume" );
-            pauseResumeButton.setBackgroundColor( Color.GREEN );
-            recordButton.setText( "Resume" );
+
+            recordButton.setText( "Resume\n(long press)" );
             recordButton.setBackgroundColor( Color.GREEN );
+            pauseResumeButton.setText( "Stop\n(long press)" );
+            pauseResumeButton.setBackgroundColor( Color.RED );
             titleText.setText( "PAUSED" );
             this.setLogMessage( "Tap for resume.\nHold for finish." );
 
-            this.stopRecordingBlink();
-
             state = 1;
+
+            this.stopRecordingBlink();
         } else {
             this.onResumeLocationRecording();
         }
@@ -302,9 +303,9 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         Button recordButton = this.findViewById( R.id.recordButton );
         TextView titleText = this.findViewById( R.id.titleTextView );
 
-        pauseResumeButton.setText( "Pause" );
+        pauseResumeButton.setText( "Pause\n(Long press)" );
         pauseResumeButton.setBackgroundColor( 0xFFFFE900 );
-        recordButton.setText( "Take snapshot" );
+        recordButton.setText( "Record current point" );
         recordButton.setBackgroundColor( 0xFFFFFFFF );
         titleText.setText( "Recording 🔴" );
         this.setLogMessage( "" );
@@ -358,7 +359,13 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
     private void stopRecordingBlink(){
         if( this.recordingBlinkTimer != null ) {
             this.recordingBlinkTimer.cancel();
+            this.recordingBlinkTimer.purge();
         }
+
+        SensorActivity.this.runOnUiThread( ()->{
+            TextView titleText = SensorActivity.this.findViewById( R.id.titleTextView );
+            titleText.setText( "PAUSED" );
+        } );
     }
 
     private void displayLocationInformation( String time, @NonNull Location location ) {
@@ -489,15 +496,15 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
                         if( SensorActivity.this.state == SensorActivity.STATE_PAUSED ) {
                             // Resume the auto record
 
-                            SensorActivity.this.vibrateOnAction();
+                            //SensorActivity.this.vibrateOnAction();
 
-                            v.performClick();
-                            return true;
+                            //v.performClick();
+                            //return true;
                         } else {
                             if( v.getId() == R.id.pauseResumeButton ) {
                                 return true;
                             } else {
-                                // Resume the auto record
+                                // Manual record
                                 SensorActivity.this.vibrateOnAction();
 
                                 v.performClick();
@@ -506,11 +513,15 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
                         }
                     } else if( downTime > 3000 ) {
                         if( SensorActivity.this.state == SensorActivity.STATE_PAUSED ) {
-                            // Close the activity
-
-                            SensorActivity.this.finish();
-
-                            return true;
+                            if( v.getId() == R.id.recordButton ) {
+                                // Resume the activity
+                                v.performClick();
+                                return true;
+                            } else {
+                                // Close the activity
+                                SensorActivity.this.finish();
+                                return true;
+                            }
                         } else {
                             if( v.getId() == R.id.pauseResumeButton ) {
                                 // Pause the auto recording
@@ -549,9 +560,18 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
                                     char[] dots = new char[ dotCount ];
                                     Arrays.fill( dots, '.' );
 
-                                    SensorActivity.this.setLogStatusMessage( "Stopping" + new String( dots ) );
+                                    if( v.getId() == R.id.recordButton ) {
+                                        SensorActivity.this.setLogStatusMessage( "Resuming" + new String( dots ) );
+                                    } else {
+                                        SensorActivity.this.setLogStatusMessage( "Stopping" + new String( dots ) );
+                                    }
                                 } else if( downTime > 3000 ) {
-                                    SensorActivity.this.setLogStatusMessage( "Stopped" );
+                                    if( v.getId() == R.id.recordButton ) {
+                                        SensorActivity.this.setLogStatusMessage( "Resumed" );
+                                    } else {
+                                        SensorActivity.this.setLogStatusMessage( "Stopped" );
+                                    }
+
 
                                     SensorActivity.this.vibrateOnAction();
 
