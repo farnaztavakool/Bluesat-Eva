@@ -40,7 +40,7 @@
         android:layout_marginRight="15dp"
         android:layout_marginBottom="15dp"
         android:onClick="onPauseResumeButtonClick"
-        android:text="Pause\n(long press)"
+        android:text="Pause\n(hold)"
         android:textColor="#0C0C0C"
         app:backgroundTint="#FFCF00"
         app:layout_constrainedHeight="true"

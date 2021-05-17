@@ -279,9 +279,9 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
             TextView titleText = this.findViewById( R.id.titleTextView );
 
 
-            recordButton.setText( "Resume\n(long press)" );
+            recordButton.setText( "Resume\n(hold)" );
             recordButton.setBackgroundColor( Color.GREEN );
-            pauseResumeButton.setText( "Stop\n(long press)" );
+            pauseResumeButton.setText( "Stop\n(hold)" );
             pauseResumeButton.setBackgroundColor( Color.RED );
             titleText.setText( "PAUSED" );
             this.setLogMessage( "Tap for resume.\nHold for finish." );
@@ -303,7 +303,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         Button recordButton = this.findViewById( R.id.recordButton );
         TextView titleText = this.findViewById( R.id.titleTextView );
 
-        pauseResumeButton.setText( "Pause\n(Long press)" );
+        pauseResumeButton.setText( "Pause\n(hold)" );
         pauseResumeButton.setBackgroundColor( 0xFFFFE900 );
         recordButton.setText( "Record current point" );
         recordButton.setBackgroundColor( 0xFFFFFFFF );
