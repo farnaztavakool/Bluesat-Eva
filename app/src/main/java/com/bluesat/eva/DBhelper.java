@@ -16,6 +16,8 @@ public class DBhelper extends SQLiteOpenHelper {
     public static final String COLOMN_LONGTITUDE = "longtitude";
     public static final String COLOMN_LATITUDE = "latitude";
     public static final String COLOMN_TIME = "time";
+    private int numberOfRecords = 0;
+
 
     public DBhelper(Context c) {
         super(c, new File( Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), DATABASE_NAME).getAbsolutePath() ,null,1);
@@ -47,7 +49,10 @@ public class DBhelper extends SQLiteOpenHelper {
         cv.put(COLOMN_TIME,time);
         db.insert(TABLE,null,cv);
 
+        this.numberOfRecords++;
     }
 
-
+    public int getNumberOfRecords(){
+        return this.numberOfRecords;
+    }
 }

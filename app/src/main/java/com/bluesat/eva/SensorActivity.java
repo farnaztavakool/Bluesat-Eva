@@ -284,7 +284,18 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
             pauseResumeButton.setText( "Stop\n(hold)" );
             pauseResumeButton.setBackgroundColor( Color.RED );
             titleText.setText( "PAUSED" );
-            this.setLogMessage( "Tap for resume.\nHold for finish." );
+
+            String message;
+
+            if( this.db.getNumberOfRecords() == 0 ) {
+                message = "no record saved.";
+            } else if(  this.db.getNumberOfRecords() == 1 ) {
+                message = "1 record saved.";
+            } else {
+                message = String.format("%d records saved.", this.db.getNumberOfRecords());
+            }
+
+            this.setLogMessage( message + "\nTap for resume.\nHold for finish." );
 
             state = 1;
 
