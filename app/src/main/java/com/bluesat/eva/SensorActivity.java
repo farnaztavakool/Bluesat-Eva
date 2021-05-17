@@ -288,14 +288,14 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
             String message;
 
             if( this.db.getNumberOfRecords() == 0 ) {
-                message = "no record saved.";
+                message = "no record saved";
             } else if(  this.db.getNumberOfRecords() == 1 ) {
-                message = "1 record saved.";
+                message = "1 record saved";
             } else {
-                message = String.format("%d records saved.", this.db.getNumberOfRecords());
+                message = String.format("%d records saved", this.db.getNumberOfRecords());
             }
 
-            this.setLogMessage( message + "\nTap for resume.\nHold for finish." );
+            this.setLogMessage( message + "\nData saved to location.sql in Download folder" );
 
             state = 1;
 
