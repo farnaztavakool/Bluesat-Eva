@@ -119,7 +119,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         int hr = cal.get( Calendar.HOUR );
         int min = cal.get( Calendar.MINUTE );
         int sec = cal.get( Calendar.SECOND );
-        String time = String.valueOf( hr ) + ":" + String.valueOf( min ) + ":" + String.valueOf( sec );
+        String time = String.format("%02d:%02d:%02d", hr, min, sec);
         db.insertLocation( location.getAltitude(), location.getLongitude(), location.getLatitude(), time );
 
         this.displayLocationInformation(time, location );
@@ -380,41 +380,41 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
     private int gps_signal_state = 0;
 
-    public void onGpsSignalClick( View v ) {
-        switch( this.gps_signal_state ) {
-            case 0:
-                this.setGpsSignalStrength( GpsSignalStrength.Good );
-                this.gps_signal_state = 1;
-                break;
-            case 1:
-                this.setGpsSignalStrength( GpsSignalStrength.Fair );
-                this.gps_signal_state = 2;
-                break;
-            case 2:
-                this.setGpsSignalStrength( GpsSignalStrength.Bad );
-                this.gps_signal_state = 0;
-                break;
-        }
-    }
+//    public void onGpsSignalClick( View v ) {
+//        switch( this.gps_signal_state ) {
+//            case 0:
+//                this.setGpsSignalStrength( GpsSignalStrength.Good );
+//                this.gps_signal_state = 1;
+//                break;
+//            case 1:
+//                this.setGpsSignalStrength( GpsSignalStrength.Fair );
+//                this.gps_signal_state = 2;
+//                break;
+//            case 2:
+//                this.setGpsSignalStrength( GpsSignalStrength.Bad );
+//                this.gps_signal_state = 0;
+//                break;
+//        }
+//    }
 
     /**
      *
      */
-    private void setGpsSignalStrength( GpsSignalStrength strength ) {
-        ImageView gpsSignal = this.findViewById( R.id.gpsSignalImageView );
-
-        switch( strength ) {
-            case Bad:
-                gpsSignal.setImageResource( R.drawable.signal_red );
-                break;
-            case Fair:
-                gpsSignal.setImageResource( R.drawable.signal_orange );
-                break;
-            case Good:
-                gpsSignal.setImageResource( R.drawable.signal_green );
-                break;
-        }
-    }
+//    private void setGpsSignalStrength( GpsSignalStrength strength ) {
+//        ImageView gpsSignal = this.findViewById( R.id.gpsSignalImageView );
+//
+//        switch( strength ) {
+//            case Bad:
+//                gpsSignal.setImageResource( R.drawable.signal_red );
+//                break;
+//            case Fair:
+//                gpsSignal.setImageResource( R.drawable.signal_orange );
+//                break;
+//            case Good:
+//                gpsSignal.setImageResource( R.drawable.signal_green );
+//                break;
+//        }
+//    }
 
     /**
      * Set the status message to display in the logTextView.
