@@ -116,7 +116,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
     public void onLocationChanged( @NonNull Location location ) {
         Calendar cal = Calendar.getInstance();
         cal.setTime( new Date( location.getTime() ) );
-        int hr = cal.get( Calendar.HOUR );
+        int hr = cal.get( Calendar.HOUR_OF_DAY );
         int min = cal.get( Calendar.MINUTE );
         int sec = cal.get( Calendar.SECOND );
         String time = String.format("%02d:%02d:%02d", hr, min, sec);
@@ -229,7 +229,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
 
             Calendar cal = Calendar.getInstance();
             cal.setTime( new Date( location.getTime() ) );
-            int hr = cal.get( Calendar.HOUR );
+            int hr = cal.get( Calendar.HOUR_OF_DAY );
             int min = cal.get( Calendar.MINUTE );
             int sec = cal.get( Calendar.SECOND );
             String time = String.format("%02d:%02d:%02d", hr, min, sec);
