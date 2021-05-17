@@ -232,7 +232,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
             int hr = cal.get( Calendar.HOUR );
             int min = cal.get( Calendar.MINUTE );
             int sec = cal.get( Calendar.SECOND );
-            String time = String.valueOf( hr ) + ":" + String.valueOf( min ) + ":" + String.valueOf( sec );
+            String time = String.format("%02d:%02d:%02d", hr, min, sec);
             db.insertLocation( location.getAltitude(), location.getLongitude(), location.getLatitude(), time );
 
             this.displayLocationInformation( time + " (snap)", location );
