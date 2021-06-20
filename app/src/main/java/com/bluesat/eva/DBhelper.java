@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Environment;
 
 import java.io.File;
 
@@ -20,7 +19,20 @@ public class DBhelper extends SQLiteOpenHelper {
 
 
     public DBhelper(Context c) {
-        super(c, new File( Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), DATABASE_NAME).getAbsolutePath() ,null,1);
+        super(c, databaseFileLocation( c ) ,null,1);
+    }
+
+    public static String databaseFileLocation(Context c){
+        File root = c.getExternalFilesDir(null);
+        File eva = new File( root, "EVA" );
+
+        if( !eva.exists() ) {
+            eva.mkdir();
+        }
+
+        File db = new File(eva, DATABASE_NAME);
+
+        return db.getAbsolutePath();
     }
 
     @Override

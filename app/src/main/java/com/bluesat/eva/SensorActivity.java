@@ -128,6 +128,10 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         Log.e( "override", time );
     }
 
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        // Placeholder function for older version of android.
+    }
+
 //    public void permission() {
 //        // Storage Permissions
 //        int REQUEST_EXTERNAL_STORAGE = 1;
@@ -295,7 +299,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
                 message = String.format("%d records saved", this.db.getNumberOfRecords());
             }
 
-            this.setLogMessage( message + "\nData saved to location.sql in Download folder" );
+            this.setLogMessage( message + "\nData saved to location.sql in EVA folder" );
 
             state = 1;
 
@@ -335,11 +339,12 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         TimerTask timerTask = new TimerTask() {
             public void run() {
                 String title;
-                if( SensorActivity.this.state == SensorActivity.STATE_RECORDING ) {
+                int state = SensorActivity.this.state;
+                if( state == SensorActivity.STATE_RECORDING ) {
                     long elapsedTime = System.currentTimeMillis() - startTime;
-                    int dotCount = (int) (elapsedTime / 2000);
+                    int elapsed = (int) (elapsedTime / 2000);
 
-                    if( dotCount % 2 == 0 ) {
+                    if( elapsed % 2 == 0 ) {
                         title = "Recording 🔴";
                     } else {
                         title= "Recording ⚫️";
@@ -353,7 +358,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
                     titleText.setText( title );
                 } );
 
-                if( SensorActivity.this.state == SensorActivity.STATE_PAUSED ) {
+                if( state == SensorActivity.STATE_PAUSED ) {
                     SensorActivity.this.recordingBlinkTimer.cancel();
                 }
             }
@@ -364,14 +369,14 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         }
 
         this.recordingBlinkTimer = new Timer( "RecordingBlink" );
-        this.recordingBlinkTimer.schedule( timerTask, 500L, 100L );
+        this.recordingBlinkTimer.schedule( timerTask, 500L, 200L );
     }
 
     private void stopRecordingBlink(){
-        if( this.recordingBlinkTimer != null ) {
-            this.recordingBlinkTimer.cancel();
-            this.recordingBlinkTimer.purge();
-        }
+        // Let the timer stop itself.
+//        if( this.recordingBlinkTimer != null ) {
+//            this.recordingBlinkTimer.cancel();
+//        }
 
         SensorActivity.this.runOnUiThread( ()->{
             TextView titleText = SensorActivity.this.findViewById( R.id.titleTextView );
