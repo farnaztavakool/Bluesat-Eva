@@ -21,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate( @Nullable Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
+
+        Thread.setDefaultUncaughtExceptionHandler( new ErrorHandler( this ) );
     }
 
     public void start( View v ) {

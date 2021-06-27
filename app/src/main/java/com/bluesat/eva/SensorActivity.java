@@ -299,7 +299,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
                 message = String.format("%d records saved", this.db.getNumberOfRecords());
             }
 
-            this.setLogMessage( message + "\nData saved to location.sql in EVA folder" );
+            this.setLogMessage( message + "\nData saved to location.sql in Android/data/com.bluesat.eva/files folder" );
 
             state = 1;
 

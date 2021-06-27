@@ -24,13 +24,13 @@ public class DBhelper extends SQLiteOpenHelper {
 
     public static String databaseFileLocation(Context c){
         File root = c.getExternalFilesDir(null);
-        File eva = new File( root, "EVA" );
+        // File eva = new File( root, "EVA" );
 
-        if( !eva.exists() ) {
-            eva.mkdir();
+        if( !root.exists() ) {
+            root.mkdir();
         }
 
-        File db = new File(eva, DATABASE_NAME);
+        File db = new File(root, DATABASE_NAME);
 
         return db.getAbsolutePath();
     }
