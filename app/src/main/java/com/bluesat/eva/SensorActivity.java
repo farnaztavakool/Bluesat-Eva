@@ -87,7 +87,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         state = 0;
         System.out.print( "updating the location" );
 
-        db = new DBhelper( this );
+        db = DBhelper.createInstance( this );
 
         // Register long press listener
         this.findViewById( R.id.pauseResumeButton ).setOnTouchListener( this.stopRecordingOnTouchListener );
@@ -119,8 +119,8 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
         int hr = cal.get( Calendar.HOUR_OF_DAY );
         int min = cal.get( Calendar.MINUTE );
         int sec = cal.get( Calendar.SECOND );
-        String time = String.format("%02d:%02d:%02d", hr, min, sec);
-        db.insertLocation( location.getAltitude(), location.getLongitude(), location.getLatitude(), time );
+        String time = String.format(Locale.ENGLISH, "%02d:%02d:%02d", hr, min, sec);
+        db.insertLocation( location.getAltitude(), location.getLongitude(), location.getLatitude(), time, false );
 
         this.displayLocationInformation(time, location );
 
@@ -236,8 +236,8 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
             int hr = cal.get( Calendar.HOUR_OF_DAY );
             int min = cal.get( Calendar.MINUTE );
             int sec = cal.get( Calendar.SECOND );
-            String time = String.format("%02d:%02d:%02d", hr, min, sec);
-            db.insertLocation( location.getAltitude(), location.getLongitude(), location.getLatitude(), time );
+            String time = String.format(Locale.ENGLISH, "%02d:%02d:%02d", hr, min, sec);
+            db.insertLocation( location.getAltitude(), location.getLongitude(), location.getLatitude(), time, true );
 
             this.displayLocationInformation( time + " (snap)", location );
 
@@ -299,7 +299,7 @@ public class SensorActivity extends AppCompatActivity implements LocationListene
                 message = String.format("%d records saved", this.db.getNumberOfRecords());
             }
 
-            this.setLogMessage( message + "\nData saved to location.sql in Android/data/com.bluesat.eva/files folder" );
+            this.setLogMessage( message + "\nData saved to "+ this.db.databaseName +" in\nAndroid/data/com.bluesat.eva/files folder" );
 
             state = 1;
 
